@@ -6,12 +6,35 @@ A full-stack, Jira-inspired collaborative task management application built with
 
 ## Screenshots & UI
 
-| View | Description |
-|------|-------------|
-| **Login / Register** | Clean auth page with form validation and inline error messages |
-| **Dashboard** | Project cards with member counts, search, and create-project dialog |
-| **Kanban Board** | Full-width 4-column board (To Do · In Progress · Review · Done), drag-and-drop, live presence indicator |
-| **Task Detail** | Edit, delete, assign members, add comments — all in a side dialog |
+### Login
+Clean auth page with form validation and inline error messages.
+
+![Login Page](https://raw.githubusercontent.com/ragini-pandey/task-tracker/main/public/login.png)
+
+### Projects Dashboard
+Project cards with member counts, search, and create-project dialog.
+
+![Projects Dashboard](https://raw.githubusercontent.com/ragini-pandey/task-tracker/main/public/projects%20dashboard.png)
+
+### Create New Project
+Modal dialog to create a new project with name and description.
+
+![Create New Project](https://raw.githubusercontent.com/ragini-pandey/task-tracker/main/public/create%20new%20project.png)
+
+### Kanban Board
+Full-width 4-column board (To Do · In Progress · Review · Done), drag-and-drop, live presence indicator.
+
+![Kanban Board](https://raw.githubusercontent.com/ragini-pandey/task-tracker/main/public/kanban%20board.png)
+
+### Create New Task
+Quick-create tasks directly from any column with title, description, priority, and due date.
+
+![Create New Task](https://raw.githubusercontent.com/ragini-pandey/task-tracker/main/public/create%20new%20task%20.png)
+
+### Task Comments
+Nested comments on tasks with timestamps and user avatars.
+
+![Task Comments](https://raw.githubusercontent.com/ragini-pandey/task-tracker/main/public/comments.png)
 
 ---
 
