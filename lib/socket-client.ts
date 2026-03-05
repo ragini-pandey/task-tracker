@@ -13,7 +13,7 @@ export function getSocket(token: string): Socket {
     auth: { token },
     transports: ["websocket", "polling"],
     reconnection: true,
-    reconnectionAttempts: 5,
+    reconnectionAttempts: 10,
     reconnectionDelay: 1000,
   });
 
@@ -34,17 +34,27 @@ export interface PresenceUser {
 }
 
 export function useSocket(token: string | null) {
-  const socketRef = useRef<Socket | null>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
     if (!token) return;
-    socketRef.current = getSocket(token);
+
+    const s = getSocket(token);
+    setSocket(s);
+
+    const onConnect = () => setSocket(s);
+    const onReconnect = () => setSocket(s);
+
+    s.on("connect", onConnect);
+    s.io.on("reconnect", onReconnect);
+
     return () => {
-      // Don't disconnect on unmount — socket is shared
+      s.off("connect", onConnect);
+      s.io.off("reconnect", onReconnect);
     };
   }, [token]);
 
-  return socketRef;
+  return socket;
 }
 
 export function useProjectPresence(
@@ -53,13 +63,20 @@ export function useProjectPresence(
   userName?: string
 ) {
   const [onlineUsers, setOnlineUsers] = useState<PresenceUser[]>([]);
-  const socketRef = useSocket(token);
+  const socket = useSocket(token);
 
   useEffect(() => {
-    const socket = socketRef.current;
     if (!socket || !projectId) return;
 
-    socket.emit("join-project", projectId, userName);
+    const joinProject = () => {
+      socket.emit("join-project", projectId, userName);
+    };
+
+    if (socket.connected) {
+      joinProject();
+    } else {
+      socket.on("connect", joinProject);
+    }
 
     const handler = (data: { projectId: string; users: PresenceUser[] }) => {
       if (data.projectId === projectId) {
@@ -70,10 +87,13 @@ export function useProjectPresence(
     socket.on("presence-update", handler);
 
     return () => {
+      socket.off("connect", joinProject);
       socket.off("presence-update", handler);
-      socket.emit("leave-project", projectId);
+      if (socket.connected) {
+        socket.emit("leave-project", projectId);
+      }
     };
-  }, [socketRef, projectId, userName]);
+  }, [socket, projectId, userName]);
 
   return onlineUsers;
 }
@@ -87,12 +107,11 @@ export function useTaskEvents(
     onTaskDeleted?: (taskId: string) => void;
   }
 ) {
-  const socketRef = useSocket(token);
+  const socket = useSocket(token);
   const callbacksRef = useRef(callbacks);
   callbacksRef.current = callbacks;
 
   useEffect(() => {
-    const socket = socketRef.current;
     if (!socket || !projectId) return;
 
     const onCreated = (data: { projectId: string; task: Record<string, unknown> }) => {
@@ -114,7 +133,7 @@ export function useTaskEvents(
       socket.off("task-updated", onUpdated);
       socket.off("task-deleted", onDeleted);
     };
-  }, [socketRef, projectId]);
+  }, [socket, projectId]);
 }
 
 export function useApi() {

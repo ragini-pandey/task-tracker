@@ -1,25 +1,21 @@
 import { createServer } from "http";
-import { parse } from "url";
 import next from "next";
 import { initSocket } from "./lib/socket";
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = "localhost";
+const hostname = dev ? "localhost" : "0.0.0.0";
 const port = parseInt(process.env.PORT || "3000", 10);
 
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
-  const httpServer = createServer((req, res) => {
-    const parsedUrl = parse(req.url!, true);
-    handle(req, res, parsedUrl);
-  });
+  const httpServer = createServer(handle);
 
   initSocket(httpServer);
 
-  httpServer.listen(port, () => {
+  httpServer.listen(port, hostname, () => {
     console.log(`> Ready on http://${hostname}:${port}`);
-    console.log(`> Socket.IO server initialized`);
+    console.log(`> Socket.IO server running`);
   });
 });
