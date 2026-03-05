@@ -24,7 +24,6 @@ export function initSocket(httpServer: HTTPServer): SocketIOServer {
 
   const io = new SocketIOServer(httpServer, {
     path: "/api/socketio",
-    addTrailingSlash: false,
     cors: {
       origin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
       methods: ["GET", "POST"],
